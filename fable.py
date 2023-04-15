@@ -4,11 +4,9 @@ import asyncio
 import openai
 import random
 import datetime
-from interactions import InteractionClient, Command, Option, OptionType
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
 from discord.ext import commands
-
 
 
 intents = discord.Intents.default()
@@ -23,65 +21,11 @@ token=os.environ.get('BOT_TOKEN')
 openai.api_key = os.environ.get('AI_TOKEN')
 selected_channel = None
 
-clear_command = Command(
-    name="clear",
-    description="Clear a specified number of messages",
-    options=[
-        Option(
-            name="amount",
-            description="The number of messages to delete, including the command message",
-            type=OptionType.INTEGER,
-            required=True,
-        ),
-    ],
-)
-
-cerebral_initiation_command = Command(
-    name="cerebralInitiation",
-    description="Activate AI setup in the current channel",
-)
-
-why_is_roberto_not_online_command = Command(
-    name="WhyisRobertonotonline",
-    description="Generate a story about why Roberto is not online",
-)
-
-join_vc_command = Command(
-    name="joinvc",
-    description="Ask everyone to join the specified voice channel",
-    options=[
-        Option(
-            name="voice_channel_name",
-            description="The name of the voice channel",
-            type=OptionType.STRING,
-            required=True,
-        ),
-    ],
-)
-
 @client.event
 async def on_ready():
     current_time = datetime.datetime.utcnow().strftime('%A @ %I:%M %p')
     print(f'[{current_time}] Bot restarted. Logged in as {client.user}')
-    await client.register_commands([
-        clear_command,
-        cerebral_initiation_command,
-        why_is_roberto_not_online_command,
-        join_vc_command
-    ])
-
-@client.event
-async def on_command(ctx, command):
-    if command.name == "clear":
-        amount = command.options["amount"].value
-        await clear_messages(ctx, amount)
-    elif command.name == "cerebralInitiation":
-        await cerebral_initiation(ctx)
-    elif command.name == "WhyisRobertonotonline":
-        await why_is_roberto_not_online(ctx)
-    elif command.name == "joinvc":
-        voice_channel_name = command.options["voice_channel_name"].value
-        await join_vc(ctx, voice_channel_name)
+    await slash.sync_all_commands()
 
 
 @slash.slash(
@@ -113,7 +57,11 @@ async def cerebral_initiation(ctx: SlashContext):
     selected_channel = ctx.channel
     await ctx.send(f"AI setup is now active in {selected_channel.mention}. Type any message, and the AI will respond as a normal user.")
 
-async def why_is_roberto_not_online(ctx):
+@slash.slash(
+    name="WhyisRobertonotonline",
+    description="Generate a story about why Roberto is not online",
+)
+async def why_is_roberto_not_online(ctx: SlashContext):
     prompts = [
         "Generate a story about Roberto getting lost in a forest while hiking.",
         "Generate a story about Roberto's computer crashing and losing all of his data.",
@@ -135,7 +83,19 @@ async def why_is_roberto_not_online(ctx):
     # Send the generated story to the Discord channel
     await ctx.send(story)
 
-async def join_vc(ctx, voice_channel_name):
+@slash.slash(
+    name="joinvc",
+    description="Ask everyone to join the specified voice channel",
+    options=[
+        create_option(
+            name="voice_channel_name",
+            description="The name of the voice channel",
+            option_type=3,
+            required=True,
+        ),
+    ],
+)
+async def join_vc(ctx: SlashContext, voice_channel_name: str):
     voice_channel = discord.utils.get(ctx.guild.voice_channels, name=voice_channel_name)
     if voice_channel:
         general_channel = discord.utils.get(ctx.guild.text_channels, name="general")
