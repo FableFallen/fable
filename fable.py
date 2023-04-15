@@ -7,7 +7,6 @@ import datetime
 from discord_slash import SlashCommand, SlashContext
 from discord.ext import commands
 from discord_slash.utils.manage_commands import create_option
-from discord.errors import InvalidArgument
 
 
 intents = discord.Intents.default()
