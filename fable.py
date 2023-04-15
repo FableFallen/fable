@@ -5,6 +5,11 @@ import openai
 import random
 import datetime
 from interactions import InteractionClient, Command, Option, OptionType
+from discord_slash import SlashCommand, SlashContext
+from discord_slash.utils.manage_commands import create_option
+from discord.ext import commands
+
+
 
 intents = discord.Intents.default()
 intents.typing = False
@@ -12,7 +17,9 @@ intents.presences = False
 intents.members = True
 intents.message_content = True
 
-client = InteractionClient(token=os.environ.get('BOT_TOKEN'), prefix='!')
+client = commands.Bot(intents=intents)
+slash = SlashCommand(client, sync_commands=True)
+token=os.environ.get('BOT_TOKEN')
 openai.api_key = os.environ.get('AI_TOKEN')
 selected_channel = None
 
@@ -77,16 +84,31 @@ async def on_command(ctx, command):
         await join_vc(ctx, voice_channel_name)
 
 
-async def clear_messages(ctx, amount):
-    if amount <= 0:
-        await ctx.send("You must specify a positive number of messages to delete.")
-    else:
-        await ctx.channel.purge(limit=amount)
-        msg = await ctx.send(f"{amount} messages have been deleted.")
-        await asyncio.sleep(3)
-        await msg.delete()
+@slash.slash(
+    name="clear",
+    description="Clear a specified number of messages in the current channel.",
+    options=[
+        create_option(
+            name="amount",
+            description="The number of messages to delete.",
+            option_type=4,
+            required=True,
+        )
+    ],
+)
+@commands.has_permissions(manage_messages=True)
+async def clear(ctx: SlashContext, amount: int):
+    await ctx.channel.purge(limit=amount + 1)
+    response = await ctx.send(f"{amount} messages deleted.")
+    await asyncio.sleep(3)
+    await response.delete()
 
-async def cerebral_initiation(ctx):
+
+@slash.slash(
+    name="cerebralInitiation",
+    description="Activate AI setup in the current channel.",
+)
+async def cerebral_initiation(ctx: SlashContext):
     global selected_channel
     selected_channel = ctx.channel
     await ctx.send(f"AI setup is now active in {selected_channel.mention}. Type any message, and the AI will respond as a normal user.")
@@ -170,5 +192,5 @@ async def on_voice_state_update(member, before, after):
                 await oligarchy_channel.send(f"{member.mention} joined the 'THE OLIGARCHY' voice channel. {ruler_role.mention}")
 
 
-client.run()
+client.run(token)
 
