@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 import openai
 import random
+import datetime
 
 intents = discord.Intents.default()
 intents.typing = False
@@ -18,7 +19,9 @@ selected_channel = None
 
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    current_time = datetime.datetime.utcnow().strftime('%A @ %I:%M %p')
+    print(f'[{current_time}] Bot restarted. Logged in as {client.user}')
+
 
 @client.command(name="cerebralInitiation")
 async def cerebral_initiation(ctx):
