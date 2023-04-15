@@ -1,1 +1,1 @@
-Worker: python3 fable.py
+worker: python3 fable.py
