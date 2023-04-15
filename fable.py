@@ -55,6 +55,33 @@ async def WhyisRobertonotonline(ctx):
     # Send the generated story to the Discord channel
     await ctx.send(story)
 
+@client.event
+async def on_message(message):
+    # Check if the message was sent in the "talk-to-fable" channel
+    if message.channel.name == "talk-to-fable" and message.author != client.user:
+        # Get the message text
+        input_text = message.content
+
+        # Call the OpenAI API to generate a response
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=input_text,
+            max_tokens=1024,
+            n=1,
+            stop=None,
+            temperature=0.5,
+        )
+        output_text = response.choices[0].text.strip()
+
+        # Send the response back to the Discord channel
+        response_message = await message.channel.send(output_text)
+
+        # Wait for 5 seconds
+        await asyncio.sleep(5)
+
+        # Delete the response message
+        await response_message.delete()
+
 
 @client.command(name="joinvc")
 @commands.has_role("Ruler")
