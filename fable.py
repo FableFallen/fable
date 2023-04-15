@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 import asyncio
+import openai
 
 intents = discord.Intents.default()
 intents.typing = False
@@ -11,16 +12,27 @@ intents.message_content = True
 
 client = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
 token = os.environ.get('BOT_TOKEN')
+openai.api_key = os.environ.get('AI_TOKEN')
 
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-@client.command(name="test")
-async def test(ctx):
-    print("Test command called.")
-    await ctx.send("Test command successful.")
+@client.command()
+async def generate_text(ctx, prompt):
+    model = "text-davinci-002"
 
+    response = openai.Completion.create(
+        engine=model,
+        prompt=prompt,
+        max_tokens=2048,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    generated_text = response.choices[0].text
+    await ctx.send(generated_text)
 
 @client.command(name="joinvc")
 @commands.has_role("Ruler")
