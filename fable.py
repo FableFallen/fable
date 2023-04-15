@@ -34,6 +34,15 @@ def generate_text(prompt, seed=None):
 
 @client.command()
 async def WhyisRobertonotonline(ctx):
+    prompts = [
+        "Generate a story about Roberto getting lost in a forest while hiking.",
+        "Generate a story about Roberto's computer crashing and losing all of his data.",
+        "Generate a story about Roberto getting kidnapped by aliens.",
+        "Generate a story about Roberto's house being flooded due to a plumbing accident.",
+        "Generate a story about Roberto accidentally eating some bad sushi and getting food poisoning.",
+        "Generate a story about Roberto getting lost in a dream and unable to wake up.",
+        "Generate a story about Roberto getting trapped in a video game.",
+    ]
     # Select a random prompt from the list
     prompt = random.choice(prompts)
 
