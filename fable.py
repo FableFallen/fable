@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import openai
+import random
 
 intents = discord.Intents.default()
 intents.typing = False
@@ -18,7 +19,7 @@ openai.api_key = os.environ.get('AI_TOKEN')
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-def generate_text(prompt):
+def generate_text(prompt, seed=None):
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
@@ -26,17 +27,25 @@ def generate_text(prompt):
         n=1,
         stop=None,
         temperature=0.5,
+        seed=seed,
     )
     return response.choices[0].text
 
+
 @client.command()
 async def WhyisRobertonotonline(ctx):
-    # Call the generate_text function with a prompt
-    prompt = "Generate a story about why Roberto is not online."
-    story = generate_text(prompt)
+    # Select a random prompt from the list
+    prompt = random.choice(prompts)
+
+    # Generate a random seed
+    seed = random.randint(0, 1000000)
+
+    # Call the OpenAI API to generate a story based on the prompt and seed
+    story = generate_text(prompt, seed=seed)
 
     # Send the generated story to the Discord channel
     await ctx.send(story)
+
 
 @client.command(name="joinvc")
 @commands.has_role("Ruler")
