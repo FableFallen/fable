@@ -18,21 +18,25 @@ openai.api_key = os.environ.get('AI_TOKEN')
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-@client.command()
-async def generate_text(ctx, prompt):
-    model = "text-davinci-002"
-
+def generate_text(prompt):
     response = openai.Completion.create(
-        engine=model,
+        engine="text-davinci-002",
         prompt=prompt,
-        max_tokens=2048,
+        max_tokens=1024,
         n=1,
         stop=None,
         temperature=0.5,
     )
+    return response.choices[0].text
 
-    generated_text = response.choices[0].text
-    await ctx.send(generated_text)
+@client.command()
+async def WhyisRobertonotonline(ctx):
+    # Call the generate_text function with a prompt
+    prompt = "Generate a story about why Roberto is not online."
+    story = generate_text(prompt)
+
+    # Send the generated story to the Discord channel
+    await ctx.send(story)
 
 @client.command(name="joinvc")
 @commands.has_role("Ruler")
