@@ -14,10 +14,42 @@ intents.message_content = True
 client = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
 token = os.environ.get('BOT_TOKEN')
 openai.api_key = os.environ.get('AI_TOKEN')
+selected_channel = None
 
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+
+@client.command(name="cerebralInitiation")
+async def cerebral_initiation(ctx):
+    global selected_channel
+    selected_channel = ctx.channel
+    await ctx.send(f"AI setup is now active in {selected_channel.mention}. Type any message, and the AI will respond as a normal user.")
+
+@client.event
+async def on_message(message):
+    global selected_channel
+
+    # Ignore messages from the bot itself
+    if message.author == client.user:
+        return
+
+    await client.process_commands(message)
+
+    if message.channel == selected_channel:
+        prompt = f"Respond to the following message as an advanced AI: '{message.content}'"
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=prompt,
+            max_tokens=150,
+            n=1,
+            stop=None,
+            temperature=0.5,
+        )
+
+        generated_text = response.choices[0].text.strip()
+        await message.channel.send(f"AI Response: {generated_text}")
+
 
 def generate_text(prompt, seed=None):
     response = openai.Completion.create(
@@ -54,34 +86,6 @@ async def WhyisRobertonotonline(ctx):
 
     # Send the generated story to the Discord channel
     await ctx.send(story)
-
-@client.event
-async def on_message(message):
-    # Check if the message was sent in the "talk-to-fable" channel
-    if message.channel.name == "talk-to-fable" and message.author != client.user:
-        # Get the message text
-        input_text = message.content
-
-        # Call the OpenAI API to generate a response
-        response = openai.Completion.create(
-            engine="text-davinci-002",
-            prompt=input_text,
-            max_tokens=1024,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-        output_text = response.choices[0].text.strip()
-
-        # Send the response back to the Discord channel
-        response_message = await message.channel.send(output_text)
-
-        # Wait for 5 seconds
-        await asyncio.sleep(5)
-
-        # Delete the response message
-        await response_message.delete()
-
 
 @client.command(name="joinvc")
 @commands.has_role("Ruler")
