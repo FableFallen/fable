@@ -97,22 +97,36 @@ async def cerebral_termination(interaction: discord.Interaction):
     await interaction.response.send_message("AI setup is no longer active.", ephemeral=True)
 
 
-@client.tree.command(name="why_is_roberto_not_online", description="Why Roberto is not online lmao")
-@commands.has_role("Ruler")
-async def why_is_roberto_not_online(interaction: discord.Interaction):
-    prompts = [
-        "Generate a story about Roberto being on a thrilling adventure in the Amazon rainforest, with no internet access.",
-        "Generate a story about Roberto participating in a week-long meditation retreat where electronic devices are not allowed.",
-        "Generate a story about Roberto volunteering in a remote village, helping build infrastructure and unable to access the internet.",
-        "Generate a story about Roberto embarking on a spontaneous cross-country road trip, encountering limited internet connectivity.",
-        "Generate a story about Roberto getting caught up in a time-travel mishap, leaving him temporarily stranded in the past.",
-        "Generate a story about Roberto's internet service provider experiencing a major outage, leaving him without connectivity.",
-        "Generate a story about Roberto attending a top-secret conference where all electronic devices must be surrendered upon entry."
-    ]
-    prompt = random.choice(prompts)
-    seed = random.randint(0, 1000000)
-    story = generate_text(prompt, seed=seed)
-    await interaction.response.send_message(story)
+# @client.tree.command(name="why_is_roberto_not_online", description="Why Roberto is not online lmao")
+# @commands.has_role("Ruler")
+# async def why_is_roberto_not_online(interaction: discord.Interaction):
+#     prompts = [
+#         "Generate a story about Roberto being on a thrilling adventure in the Amazon rainforest, with no internet access.",
+#         "Generate a story about Roberto participating in a week-long meditation retreat where electronic devices are not allowed.",
+#         "Generate a story about Roberto volunteering in a remote village, helping build infrastructure and unable to access the internet.",
+#         "Generate a story about Roberto embarking on a spontaneous cross-country road trip, encountering limited internet connectivity.",
+#         "Generate a story about Roberto getting caught up in a time-travel mishap, leaving him temporarily stranded in the past.",
+#         "Generate a story about Roberto's internet service provider experiencing a major outage, leaving him without connectivity.",
+#         "Generate a story about Roberto attending a top-secret conference where all electronic devices must be surrendered upon entry."
+#     ]
+#     prompt = random.choice(prompts)
+#     seed = random.randint(0, 1000000)
+    
+#     # Modify this part to use the new API method
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",  # or use another model, depending on your needs
+#         messages=[
+#             {"role": "system", "content": "You are a creative storyteller."},
+#             {"role": "user", "content": prompt}
+#         ],
+#         temperature=0.7,
+#         max_tokens=500,
+#         n=1,
+#         stop=None
+#     )
+    
+#     story = response['choices'][0]['message']['content']
+#     await interaction.response.send_message(story)
 
 @client.tree.command(name="join_vc", description="WHICH VC DO WE GO! LETS A GO")
 @commands.has_any_role("Ruler")
@@ -132,17 +146,17 @@ async def join_vc(interaction: discord.Interaction, voice_channel_name: str):
         await interaction.followup.send("Voice channel not found.", ephemeral=True)
 
 
-def generate_text(prompt, seed=None):
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5,
-        seed=seed,
-    )
-    return response.choices[0].text
+# def generate_text(prompt, seed=None):
+#     response = openai.Completion.create(
+#         engine="text-davinci-002",
+#         prompt=prompt,
+#         max_tokens=1024,
+#         n=1,
+#         stop=None,
+#         temperature=0.5,
+#         seed=seed,
+#     )
+#     return response.choices[0].text
 
 @client.event
 async def on_message(message):
